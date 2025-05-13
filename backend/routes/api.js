@@ -8,6 +8,7 @@ import authMiddleware from "../app/middlewares/authMiddleware.js";
 router.post("/register",singleUpload, userController.register);
 router.post("/login", userController.login);
 router.get("/getMyProfile",authMiddleware, userController.getMyProfile);
+router.put("/updateProfile",authMiddleware,singleUpload, userController.updateProfile);
 router.get("/logout", userController.logout);
 
 

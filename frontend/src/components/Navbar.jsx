@@ -6,157 +6,172 @@ import { logout } from "../api/api";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!Cookies.get("token"));
-  const [userData, setUserData] = useState(null);
+  const islogin = Cookies.get("token");
+
+  const [data, setdata] = useState({});
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        if (isLoggedIn) {
+    
+      (async () => {
+        try {
           const res = await axios.get(
             "http://localhost:5050/api/getMyProfile",
             {
               withCredentials: true,
             }
           );
-          setUserData(res.data.user);
+          setdata(res.data.user);
+        } catch (err) {
+          console.error("Profile fetch error:", err);
         }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-        handleLogout();
-      }
-    };
+      })();
+    
+  }, []);
 
-    checkAuth();
-  }, [isLoggedIn]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      Cookies.remove("token");
-      setIsLoggedIn(false);
-      setUserData(null);
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
+  const Logout = async () => {
+    await logout();
+    navigate("/login");
   };
 
   return (
-    <nav className="bg-white border-gray-200 dark:bg-gray-900">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <Link
-          to="/"
-          className="flex items-center space-x-3 rtl:space-x-reverse"
-        >
-          <img
-            src="https://flowbite.com/docs/images/logo.svg"
-            className="h-8"
-            alt="Flowbite Logo"
-          />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
-            Tay
-          </span>
-        </Link>
-
-        {/* Mobile menu button */}
-        <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-          {isLoggedIn && userData?.profilepic && (
+    <div>
+      <nav className="bg-white border-gray-200 dark:bg-gray-900">
+        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+          <a className="flex items-center space-x-3 rtl:space-x-reverse">
             <img
-              className="w-8 h-8 rounded-full hidden md:block"
-              src={userData.profilepic}
-              alt="User profile"
+              src="https://flowbite.com/docs/images/logo.svg"
+              className="h-8"
+              alt="Flowbite Logo"
             />
-          )}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-            aria-expanded={isMenuOpen}
-            aria-label="Toggle menu"
-          >
-            <span className="sr-only">Open main menu</span>
-            <svg
-              className="w-5 h-5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 17 14"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M1 1h15M1 7h15M1 13h15"
-              />
-            </svg>
-          </button>
-        </div>
+            <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
+              Tay
+            </span>
+          </a>
 
-        {/* Navigation menu */}
-        <div
-          className={`${
-            isMenuOpen ? "block" : "hidden"
-          } items-center justify-between w-full md:flex md:w-auto md:order-1`}
-          id="navbar-user"
-        >
-          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-            {!isLoggedIn ? (
-              <>
-                <li>
-                  <Link
-                    to="/signup"
-                    onClick={closeMenu}
-                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                  >
-                    Sign Up
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/login"
-                    onClick={closeMenu}
-                    className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                  >
-                    Login
-                  </Link>
-                </li>
-              </>
-            ) : (
-              <>
+          <div className="relative md:hidden">
+            <img
+              className="w-12 h-12 rounded-full cursor-pointer"
+              src={data.profilepic}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            />
+            <div
+              className={`absolute right-0 mt-2 z-10 ${
+                dropdownOpen ? "block" : "hidden"
+              } w-56 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600`}
+            >
+              <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                <div>{data.fullname}</div>
+                <div className="font-medium truncate">{data.email}</div>
+              </div>
+              <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                 <li>
                   <Link
                     to="/"
-                    onClick={closeMenu}
-                    className="btn bg-white  py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-white "
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                   >
                     Home
                   </Link>
                 </li>
-                
                 <li>
-                  <button
-                    onClick={() => {
-                      closeMenu();
-                      handleLogout();
-                    }}
-                    className="block w-full text-left py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                   >
-                    Logout
-                  </button>
+                    Profile
+                  </Link>
                 </li>
-              </>
-            )}
-          </ul>
+              </ul>
+              <div className="py-2">
+                <button
+                  onClick={Logout}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className={`${
+              menuOpen ? "block" : "hidden"
+            } w-full md:block md:w-auto`}
+            id="navbar-default"
+          >
+            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border gap-y-3.5 border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+              {!islogin ? (
+                <>
+                  <li>
+                    <Link
+                      to="/signup"
+                      className="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500"
+                    >
+                      Signup
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/login"
+                      className="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500"
+                    >
+                      Login
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <div className="relative">
+                    <img
+                      className="w-12 h-12 rounded-full cursor-pointer"
+                      src={data.profilepic}
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                    />
+                    <div
+                      className={`absolute right-0 mt-2 z-10 ${
+                        dropdownOpen ? "block" : "hidden"
+                      } w-56 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600`}
+                    >
+                      <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                        <div>{data.fullname}</div>
+                        <div className="font-medium truncate">{data.email}</div>
+                      </div>
+                      <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+                        <li>
+                          <Link
+                            to="/"
+                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                          >
+                            Home
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            to="/profile"
+                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                          >
+                            Profile
+                          </Link>
+                        </li>
+                      </ul>
+                      <div className="py-2">
+                        <button
+                          onClick={Logout}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 };
 

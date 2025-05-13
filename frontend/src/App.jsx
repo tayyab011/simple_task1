@@ -5,6 +5,8 @@ import Login from './components/Login'
 
 import Signup from './components/Signup'
 import Home from './page/Home'
+import Profile from './page/Profile'
+import UpdateProfile from './components/UpdateProfile';
 
 function App() {
 
@@ -16,6 +18,8 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={<Profile/>} />
+        <Route path="/updateProfile" element={<UpdateProfile/>} />
       </Routes>
     </BrowserRouter>
   );

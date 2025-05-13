@@ -6,7 +6,7 @@ const Home = () => {
         <Layout>
             
 
-<div id="custom-controls-gallery" className="relative w-full my-20" data-carousel="slide">
+<div id="custom-controls-gallery" className="relative w-full my-20 -z-30" data-carousel="slide">
 
     <div className="relative h-56 overflow-hidden rounded-lg md:h-96">
          

@@ -19,7 +19,7 @@ export const register =async(req,res)=>{
           })
         }
        const existingData = await userModel.findOne({
-         $or: [{ email }, { phoneNumber }],
+         $or: [{ email }],
        });
        if (existingData) {
         return res.status(400).json({
@@ -103,6 +103,42 @@ export const login = async (req, res) => {
   }
 
   }; 
+  export const updateProfile = async (req, res) => {
+    try {
+      const { fullname, email, phoneNumber, password } = req.body;
+   
+      const file = req.file;
+      let updateFields = { fullname, email, phoneNumber, password };
+
+      if (file) {
+        const fileUri = getDataUri(file);
+        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        updateFields.profilepic = cloudResponse.secure_url;
+      }
+
+      const user_id = req.headers["user_id"];
+      if (!user_id) {
+        return res.status(400).json({
+          success: false,
+          message: "User ID missing in headers",
+        });
+      }
+
+      await userModel.updateOne({ _id: user_id }, updateFields);
+
+      return res.status(200).json({
+        success: true,
+        message: "User profile updated successfully",
+      });
+    } catch (error) {
+      console.error("Update error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Data update failed",
+      });
+    }
+  };
+  
 
 
   /* export const getMyProfile = async (req, res) => {
